@@ -8,6 +8,9 @@ import com.example.lock.demo.mapper.OrderMapper;
 import com.example.lock.demo.util.db.DBLockUtil;
 import com.example.lock.demo.util.pes.PesLockUtil;
 import com.example.lock.demo.util.uni.UniLockUtil;
+import com.example.lock.demo.util.zk.ZkLockUtil;
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.recipes.locks.InterProcessMutex;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -28,6 +31,38 @@ class DemoApplicationTests {
 
     public final static int TOTAL = 1000; //库存总数
     public final static int GOOD_ID = 1; // 商品ID
+
+    @Resource
+    private CuratorFramework zkClient;
+
+    // ZK-Curator 锁
+    @Test
+    public void CuratorLock() {
+        InterProcessMutex lock = new InterProcessMutex(zkClient, "/lock/zkLock");
+        testLock(() -> {
+            try {
+                lock.acquire();
+                lock.acquire();
+                buy(GOOD_ID);
+                lock.release();
+                lock.release();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    // ZK 锁
+    @Test
+    public void ZkLock() {
+        testLock(() -> {
+            ZkLockUtil.lock("key");
+            ZkLockUtil.lock("key");
+            buy(GOOD_ID);
+            ZkLockUtil.unlock("key");
+            ZkLockUtil.unlock("key");
+        });
+    }
 
 
     // 数据库锁
