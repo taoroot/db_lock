@@ -17,7 +17,7 @@
     <properties>
         <java.version>1.8</java.version>
         <mybatis-plus>3.1.0</mybatis-plus>
-        <mysql-connector.version>8.0.13</mysql-connector.version>
+        <mysql-connector.version>8.0.16</mysql-connector.version>
     </properties>
 
     <dependencies>
